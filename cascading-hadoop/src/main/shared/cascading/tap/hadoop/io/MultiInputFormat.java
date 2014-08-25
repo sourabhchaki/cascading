@@ -30,6 +30,7 @@ import java.util.Map;
 import cascading.CascadingException;
 import cascading.flow.hadoop.util.HadoopUtil;
 import cascading.util.Util;
+
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.InputFormat;
@@ -262,6 +263,38 @@ public class MultiInputFormat implements InputFormat
       }
     catch( Exception exception )
       {
+      if(job.getBoolean("skipinvalidinput", false)){
+    	return new RecordReader(){
+		  @Override
+		  public boolean next(Object key, Object value)
+		  		throws IOException {
+		  	return false;
+		  }
+
+		  @Override
+		  public Object createKey() {
+		  	return null;
+		  }
+
+		  @Override
+		  public Object createValue() {
+		  	return null;
+		  }
+
+		  @Override
+		  public long getPos() throws IOException {
+		  	return 0;
+		  }
+
+		  @Override
+		  public void close() throws IOException {
+		  }
+		  @Override
+		  public float getProgress() throws IOException {
+		  	return 0;
+		  }
+   	  };
+      }
       if( exception instanceof RuntimeException )
         throw (RuntimeException) exception;
       else
